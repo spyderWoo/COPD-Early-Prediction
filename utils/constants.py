@@ -1,0 +1,9 @@
+# utils/constants.py
+NHANES_KEYS = [
+    'RIDAGEYR', 'RIAGENDR', 'RIDRETH1',
+    'SMQ020', 'SMQ040', 'LBXCOT',
+    'OCQ180', 'OCQ260',
+    'RDQ140', 'RDQ031', 'RDQ050', 'RDQ070',
+    'MCQ010', 'MCQ160C', 'MCQ160F', 'MCQ160B',
+    'LBXWBCSI', 'LBXNECSI', 'LBXEOPCT'
+]

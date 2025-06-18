@@ -1,0 +1,25 @@
+# utils/ontology_map.yaml
+
+RIDAGEYR: Demographic
+RIAGENDR: Demographic
+RIDRETH1: Demographic
+
+SMQ020: Lifestyle
+SMQ040: Lifestyle
+LBXCOT: Lifestyle
+OCQ180: Lifestyle
+OCQ260: Lifestyle
+
+RDQ140: Symptoms
+RDQ031: Symptoms
+RDQ050: Symptoms
+RDQ070: Symptoms
+
+MCQ010: MedicalHistory
+MCQ160C: MedicalHistory
+MCQ160F: MedicalHistory
+MCQ160B: MedicalHistory
+
+LBXWBCSI: LabResults
+LBXNECSI: LabResults
+LBXEOPCT: LabResults

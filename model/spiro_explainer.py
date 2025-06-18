@@ -1,46 +1,20 @@
-# model/spiro_explainer.py
-
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 
-class SpiroExplainer(nn.Module):
+def compute_concavity_features(flow_patches, patch_len):
     """
-    SpiroExplainer: 
-      - Encoder feature (B, encoder_dim) + DEMO 정보 (B,3) → FC → 최종 COPD logit
-      - sigmoid를 사용하여 확률 반환
+    flow_patches: [B, max_patch, 1, patch_len]
+    return: [B, 4]
     """
-
-    def __init__(self, encoder_dim=64, demo_dim=3, hidden_dim=64):
-        super().__init__()
-        # encoder feature → hidden_dim
-        self.fc_enc = nn.Linear(encoder_dim, hidden_dim)
-        # DEMO(age, sex, smoking) → hidden_dim
-        self.fc_demo = nn.Linear(demo_dim, hidden_dim)
-        # 두 벡터 합친 후 → hidden_dim → 1 (로그릿)
-        self.fc_combined = nn.Linear(hidden_dim, hidden_dim)
-        self.fc_out = nn.Linear(hidden_dim, 1)
-
-    def forward(self, enc_feat, age, sex, smoking):
-        """
-        Args:
-          enc_feat: Tensor (B, encoder_dim)
-          age:      Tensor (B,1)
-          sex:      Tensor (B,1)
-          smoking:  Tensor (B,1)
-        Returns:
-          y_logit:  Tensor (B,1)  # BCEWithLogitsLoss를 위해 로짓 반환
-        """
-        B = enc_feat.size(0)
-        # 1) encoder feature
-        x_enc = F.relu(self.fc_enc(enc_feat))  # (B, hidden_dim)
-        # 2) demo feature
-        demo_cat = torch.cat([age, sex, smoking], dim=1)  # (B,3)
-        x_demo = F.relu(self.fc_demo(demo_cat))          # (B, hidden_dim)
-
-        # 3) 합치기
-        x = x_enc + x_demo                            # (B, hidden_dim)
-        x = F.relu(self.fc_combined(x))               # (B, hidden_dim)
-        y_logit = self.fc_out(x)                      # (B,1)
-
-        return y_logit.squeeze(1)                     # (B,)
+    B = flow_patches.size(0)
+    features = []
+    for i in range(B):
+        patches = flow_patches[i]  # [max_patch, 1, patch_len]
+        diff = patches[:, :, 1:] - patches[:, :, :-1]
+        diff2 = diff[:, :, 1:] - diff[:, :, :-1]
+        max_c = diff2.max(dim=2).values.mean(dim=0)
+        min_c = diff2.min(dim=2).values.mean(dim=0)
+        mean_c = diff2.mean(dim=2).mean(dim=0)
+        std_c = diff2.std(dim=2).mean(dim=0)
+        feat = torch.cat([max_c, min_c, mean_c, std_c], dim=0)  # [4]
+        features.append(feat)
+    return torch.stack(features)  # [B,4]

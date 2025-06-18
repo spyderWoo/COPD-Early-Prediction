@@ -1,27 +1,28 @@
 # preprocessing/flow_converter.py
 
 import numpy as np
+from .smoother import smooth_signal
 
-def time_to_flow(volume: np.ndarray, dt: float = 0.01) -> np.ndarray:
+def convert_volume_to_flow(volume_signal, dt=0.01):
     """
-    Time–Volume curve를 받아서, 유한 차분(finite difference)으로 유량(Flow) 시계열을 계산합니다.
-    Q(t) ≈ (V(t+Δt) - V(t)) / Δt
-    Args:
-      volume: numpy array, V(t) 시계열
-      dt: float, 시간 간격(초)
-    Returns:
-      flow: numpy array, Flow(t) 시계열 (len = len(volume)-1)
+    부피 시계열 → 유량 시계열로 변환 (단순 finite difference 방식)
     """
-    # volume 크기 N → flow 크기 N-1
-    return (volume[1:] - volume[:-1]) / dt
+    return np.gradient(volume_signal, dt)
 
-def construct_flow_volume(vol: np.ndarray, flow: np.ndarray) -> np.ndarray:
+def time_to_flow(vol, dt=0.01):
     """
-    Flow–Volume 곡선 (x축: 볼륨, y축: 유량) 시계열을 만듭니다.
-    Args:
-      vol:  numpy array, Volume 시계열 (length N)
-      flow: numpy array, Flow 시계열 (length N)
-    Returns:
-      fv: numpy array shape (N, 2), 각 행: [volume_i, flow_i]
+    부피 → 유량 미분 (유량은 단위 시간당 부피 변화량)
     """
-    return np.stack([vol, flow], axis=1)  # (N, 2)
+    return np.gradient(vol, dt)
+
+def construct_flow_volume(vol, flow):
+    """
+    vol: [N] → 원래는 smoothed volume
+    flow: [M] → flow 값 (길이 다를 수 있음)
+
+    두 벡터를 길이 맞춰서 [N, 2] 형태로 쌍을 이룸
+    """
+    min_len = min(len(vol), len(flow))
+    vol = vol[:min_len]
+    flow = flow[:min_len]
+    return np.stack([vol, flow], axis=1)

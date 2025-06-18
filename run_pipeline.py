@@ -1,39 +1,58 @@
-# run_pipeline.py
 import os
 import yaml
 import torch
+import pandas as pd
+
 from preprocessing.nhanes_loader import NHANESDataset
+from preprocessing.graph_builder import build_ontology_graph
 from train.train_detection import train_detection
 from train.train_prediction import train_prediction
 
 def main():
-    # 1) YAML 설정 불러오기 (UTF-8 인코딩)
-    cfg_path = "config.yaml"
-    with open(cfg_path, encoding='utf-8') as f:
+    # 1) Load config
+    with open("config.yaml", encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
 
-    # 2) NHANES 데이터셋 로드
-    print("===== NHANES 데이터셋 준비 시작 =====")
+    # 2) Prepare NHANES dataset
+    print("===== NHANES dataset loading =====")
     dataset = NHANESDataset(
         demo_path=cfg['data']['demo_path'],
         smq_path=cfg['data']['smq_path'],
+        rdq_path=cfg['data']['rdq_path'],
+        mcq_path=cfg['data']['mcq_path'],
+        ocq_path=cfg['data']['ocq_path'],
+        cotnal_path=cfg['data']['cotnal_path'],
+        cbc_path=cfg['data']['cbc_path'],
         spx_g_path=cfg['data']['spx_g_path'],
         spxraw_g_path=cfg['data']['spxraw_g_path'],
         smoothing_sigma=cfg['data']['smoothing_sigma'],
         patch_length=cfg['data']['patch_length'],
     )
-    print("▶️ 총 샘플 수 (summary_df):", len(dataset))
-    print("===== NHANES 데이터셋 준비 완료 =====\n")
+    print(f"✅ Total samples: {len(dataset)}")
 
-    # 3) COPD Detection 학습
-    print("===== COPD Detection 학습 시작 =====")
-    detection_models = train_detection(dataset, cfg)
-    print("===== COPD Detection 학습 완료 =====\n")
+    # 3) Build ontology graph
+    print("===== building ontology graph =====")
+    nhanes_tables = {
+        'DEMO': pd.read_sas(cfg['data']['demo_path']),
+        'SMQ': pd.read_sas(cfg['data']['smq_path']),
+        'RDQ': pd.read_sas(cfg['data']['rdq_path']),
+        'MCQ': pd.read_sas(cfg['data']['mcq_path']),
+        'OCQ': pd.read_sas(cfg['data']['ocq_path']),
+        'CBC': pd.read_sas(cfg['data']['cbc_path']),
+        'COTNAL': pd.read_sas(cfg['data']['cotnal_path']),
+    }
+    graph_data = build_ontology_graph(nhanes_tables, cfg['ontology']['map_path'])
+    print("✅ Ontology graph ready\n")
 
-    # 4) COPD Early Prediction 학습 (검출 모델 사용 가능)
-    print("===== COPD Early Prediction 학습 시작 =====")
-    predictor_model = train_prediction(dataset, cfg, detection_models)
-    print("===== COPD Early Prediction 학습 완료 =====")
+    # 4) COPD Detection training
+    print("===== COPD Detection training =====")
+    detection_model = train_detection(dataset, cfg)
+    print("===== COPD Detection done =====\n")
+
+    # 5) Early‐Prediction / Fusion training
+    print("===== Fusion Model training =====")
+    fusion_model = train_prediction(dataset, graph_data, cfg)
+    print("===== Fusion Model done =====")
 
 if __name__ == "__main__":
     main()

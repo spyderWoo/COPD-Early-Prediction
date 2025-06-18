@@ -1,9 +1,12 @@
-numpy
-pandas
-PyYAML
-scikit-learn
-torch
-torchvision
-matplotlib
-scipy
-shap
+numpy>=1.18.0
+pandas>=1.0.0
+pyreadstat>=0.4.0
+torch>=1.7.0
+scipy>=1.5.0
+scikit-learn>=0.22.0
+catboost>=1.0.0
+tqdm>=4.0.0
+pyyaml>=5.3.0
+matplotlib>=3.0.0
+torch-geometric>=2.0.0  # NEW: for GNN
+shap>=0.40.0            # NEW: for explainability
