@@ -16,12 +16,15 @@ def main():
     device = torch.device(cfg['train']['device'] if torch.cuda.is_available() else 'cpu')
 
     # 모델 로드
-    encoder, explainer, cb_det, cb_pred = load_models(cfg, device)
+    model = load_models(cfg['output']['checkpoint_dir'], cfg)
 
     df = pd.read_csv(args.input_csv)
     results = []
     for _, row in df.iterrows():
-        prob_copd, prob_future = predict_copd(row, encoder, explainer, cb_det, cb_pred, cfg, device)
+        flow_patches = np.load(row['flow_path'])  # npy file (n_patches, patch_length)
+        flow_tensor = torch.from_numpy(flow_patches).unsqueeze(1).float().unsqueeze(0)
+        clinical = row[['AGE', 'SEX', 'SMOKING']].values.astype(np.float32).reshape(1, 3)
+        prob_copd, prob_future = predict_copd(flow_tensor, clinical, model, cfg)
         results.append({
             'SEQN': row['SEQN'], 'prob_copd': prob_copd, 'prob_future': prob_future
         })

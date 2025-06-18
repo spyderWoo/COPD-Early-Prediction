@@ -1,6 +1,6 @@
 # COPD 조기 예측 파이프라인
 
-이 프로젝트는 미국 NHANES (National Health and Nutrition Examination Survey) 2007-2008 데이터에 기반하여 만성 폐쇄성 폐질환(COPD)을 조기에 감지하는 머신러닝 모델 학습 파이프라인입니다. 인구통계 정보(DEMO_G), 흡연 설문(SMQ_G), 호흡기 건강 설문(RDQ_G) 및 폐활량 검사(SPX_G) 데이터를 병합하여, 폐활량 검사 결과(FEV1/FVC 비율)로 정의한 COPD 여부를 예측하는 분류 모델을 학습합니다. CatBoost 머신러닝 알고리즘을 사용하며, 모델 학습 완료 후 특징 중요도 분석을 위해 SHAP 기반 설명 시각화 결과를 생성합니다.
+이 프로젝트는 미국 NHANES (National Health and Nutrition Examination Survey) **2011-2012** 데이터에 기반하여 만성 폐쇄성 폐질환(COPD)을 조기에 감지하는 머신러닝 모델 학습 파이프라인입니다. 인구통계 정보(DEMO_G), 흡연 설문(SMQ_G), 호흡기 건강 설문(RDQ_G) 및 폐활량 검사(SPX_G) 데이터를 병합하여, 폐활량 검사 결과(FEV1/FVC 비율)로 정의한 COPD 여부를 예측하는 분류 모델을 학습합니다. CatBoost 머신러닝 알고리즘을 사용하며, 모델 학습 완료 후 특징 중요도 분석을 위해 SHAP 기반 설명 시각화 결과를 생성합니다.
 
 ## 파일 구조
 COPD-Early-Prediction/
@@ -18,8 +18,10 @@ COPD-Early-Prediction/
    - 리포지토리를 클론한 후, 프로젝트 디렉터리로 이동합니다. 
    - Python 3 환경에서 `pip install -r requirements.txt`를 실행하여 필요한 패키지를 설치합니다.
 
-2. **데이터 준비:** 
-   - NHANES 2007-2008 설문/검사 데이터 파일(DEMO_G.xpt, SMQ_G.xpt, RDQ_G.xpt, SPX_G.xpt)을 `data/` 디렉터리에 넣습니다. (`config.yaml`에서 경로와 파일 이름을 변경할 수 있습니다.)
+2. **데이터 준비:**
+  - NHANES 2011-2012 설문/검사 데이터 파일을 모두 `data/` 디렉터리에 넣습니다. 필요한 파일은 다음과 같습니다.
+    `DEMO_G.xpt`, `SMQ_G.xpt`, `RDQ_G.xpt`, `MCQ_G.xpt`, `OCQ_G.xpt`, `COTNAL_G.xpt`, `CBC_G.xpt`, `SPX_G.xpt`, `SPXRAW_G.sas7bdat` (`config.yaml`에서 경로와 파일 이름을 변경할 수 있습니다.)
+   - 데이터 파일 존재 여부는 `python preprocessing/check_data.py` 명령으로 확인할 수 있습니다.
 
 3. **파이프라인 실행:** 
    - `config.yaml` 설정을 확인/수정한 후, 프로젝트 디렉터리에서 `python run_pipeline.py` 명령을 실행합니다.
@@ -39,5 +41,15 @@ COPD-Early-Prediction/
 - DEMO_G.xpt (약 몇 MB):  
   https://www.cdc.gov/Nchs/Nhanes/2011-2012/DEMO_G.XPT
 
-- SMQ_G.xpt (약 몇 MB):  
+- SMQ_G.xpt (약 몇 MB):
   https://www.cdc.gov/Nchs/Nhanes/2011-2012/SMQ_G.XPT
+  - RDQ_G.xpt (약 몇 MB):
+    https://www.cdc.gov/Nchs/Nhanes/2011-2012/RDQ_G.XPT
+  - MCQ_G.xpt (약 몇 MB):
+    https://www.cdc.gov/Nchs/Nhanes/2011-2012/MCQ_G.XPT
+  - OCQ_G.xpt (약 몇 MB):
+    https://www.cdc.gov/Nchs/Nhanes/2011-2012/OCQ_G.XPT
+  - COTNAL_G.xpt (약 몇 MB):
+    https://www.cdc.gov/Nchs/Nhanes/2011-2012/COTNAL_G.XPT
+  - CBC_G.xpt (약 몇 MB):
+    https://www.cdc.gov/Nchs/Nhanes/2011-2012/CBC_G.XPT
