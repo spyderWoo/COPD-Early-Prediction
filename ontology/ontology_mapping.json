@@ -1,8 +1,21 @@
-from sklearn.metrics import roc_auc_score, average_precision_score, f1_score
-
-def compute_metrics(y_true, y_pred, y_prob):
-    return {
-        'auroc': roc_auc_score(y_true, y_prob),
-        'auprc': average_precision_score(y_true, y_prob),
-        'f1':    f1_score(y_true, y_pred)
-    }
+{
+  "RIDAGEYR": "Demographic",
+  "RIAGENDR": "Demographic",
+  "RIDRETH1": "Demographic",
+  "SMQ020": "Lifestyle",
+  "SMQ040": "Lifestyle",
+  "LBXCOT": "Lifestyle",
+  "OCQ180": "Lifestyle",
+  "OCQ260": "Lifestyle",
+  "RDQ140": "Symptoms",
+  "RDQ031": "Symptoms",
+  "RDQ050": "Symptoms",
+  "RDQ070": "Symptoms",
+  "MCQ010": "MedicalHistory",
+  "MCQ160C": "MedicalHistory",
+  "MCQ160F": "MedicalHistory",
+  "MCQ160B": "MedicalHistory",
+  "LBXWBCSI": "LabResults",
+  "LBXNECSI": "LabResults",
+  "LBXEOPCT": "LabResults"
+}
